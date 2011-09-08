@@ -385,13 +385,14 @@ static inline float vectorsDeviation(CGPoint v1, CGPoint v2)
         CCPanZoomTimePointStamp *record = &_history[(_timePointStampCounter-i-1) % kCCPanZoomControllerHistoryCount];
         
         CGPoint pt = record->pt;
+        pt = [_node convertToNodeSpace:[[CCDirector sharedDirector] convertToGL: pt]];
         float time = record->time;
         
         //Only calculate after first
         if (i != 0)
         {
             //Sentinels: stop if we have large time chunks
-            if ((lastTime-time) > .06)
+            if ((lastTime-time) >= .02)
                 break;
             //or sporadic vectors past an amount of history
             if (i > 3 && vectorsDeviation(lastPt, pt) > .1)
@@ -400,7 +401,7 @@ static inline float vectorsDeviation(CGPoint v1, CGPoint v2)
             //Get a vector between two touches, but weight it with the time difference,
             //this will eliminate small quick movements and favor sweeping touches
             tPt = ccpAdd(tPt, ccpMult(ccpSub(lastPt, pt), (lastTime-time)));
-            CCLOG(@"%d, %.3f - %.3f (%0.0f, %0.0f) # (%0.4f, %0.0f)", (_timePointStampCounter-i-1) % kCCPanZoomControllerHistoryCount, time - lastTime, time, pt.x, pt.y, tPt.x, tPt.y);
+            //CCLOG(@"%d, %.3f - %.3f (%0.0f, %0.0f) # (%0.4f, %0.0f)", (_timePointStampCounter-i-1) % kCCPanZoomControllerHistoryCount, time - lastTime, time, pt.x, pt.y, tPt.x, tPt.y);
             count++;
         }
         
